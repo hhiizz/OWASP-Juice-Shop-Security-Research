@@ -16,7 +16,7 @@
 
 | 編號 | 挑戰／漏洞名稱 | 挑戰難度 | 漏洞類型 | 風險評估 | 報告 |
 | --- | --- | --- | --- | --- | --- |
-| JS-001 | API-Only XSS | ★ ★ ★ | XSS／存取控制 | 待評估 | [報告：商品竄改已依實測描述記錄，XSS 證據待補](reports/xss/001-api-only-xss.md) |
+| JS-001 | API-Only XSS | ★ ★ ★ | XSS／存取控制 | 待評估 | [報告：商品竄改已依實測描述記錄，XSS 證據待補](reports/001-api-only-xss.md) |
 
 挑戰難度依測試版本中 Juice Shop 的星級填寫，保留原始星數，不限定為一至四星。星級代表挑戰難度；風險評估需另外依據實際影響與利用條件說明。
 
@@ -29,19 +29,17 @@ Juice-Shop-Security-Research/
 │   └── README.md
 ├── reports/
 │   ├── TEMPLATE.md
-│   ├── sql-injection/
-│   ├── xss/
-│   └── access-control/
+│   └── 001-api-only-xss.md
 └── assets/
     └── README.md
 ```
 
-報告依漏洞類型分類，不依星級建立資料夾。遇到其他漏洞類型時，再新增對應目錄。
+所有報告統一放在 `reports/`，不建立分類子資料夾。漏洞類型與挑戰星級記錄在報告及上方索引中。
 
 ## 新增研究報告
 
 1. 依照 [環境紀錄](environment/README.md) 填寫部署方式與版本。
-2. 複製 [漏洞報告範本](reports/TEMPLATE.md) 至對應漏洞類型目錄。
+2. 在 `reports/` 內複製 [漏洞報告範本](reports/TEMPLATE.md)，建立新報告。
 3. 以 `001-short-description.md` 格式命名，編號在整個專案中保持唯一。
 4. 將證據放入 `assets/001-short-description/`，並在報告中使用相對路徑引用。
 5. 完成後更新上方報告索引。

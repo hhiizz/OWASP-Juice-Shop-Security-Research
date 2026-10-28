@@ -26,7 +26,7 @@
 - 工具及版本：待填寫。
 - 登入狀態與必要權限：待填寫。
 - 測試資料與起始狀態：待填寫。
-- 相關環境紀錄：填寫環境名稱；報告放入漏洞類型目錄後，可連結至 `../../environment/README.md`。
+- 相關環境紀錄：填寫環境名稱，參見 [環境說明](../environment/README.md)。
 
 ## 3. 發現過程
 
@@ -57,7 +57,7 @@
 截圖引用格式範例（加入實際檔案後再使用）：
 
 ```markdown
-![驗證結果與說明](../../assets/001-short-description/01-result.png)
+![驗證結果與說明](../assets/001-short-description/01-result.png)
 ```
 
 ## 6. 成因分析
