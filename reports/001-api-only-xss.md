@@ -9,7 +9,7 @@
 | 挑戰難度 | ★ ★ ★（3 星） |
 | 漏洞類型 | 存取控制缺失；儲存型 XSS 的利用鏈待補證據 |
 | 受影響介面 | `/api/Products/` 商品 API；完整更新端點待補 |
-| 驗證狀態 | 商品竄改與管理員權限檢查缺失：依研究者實測描述記錄；XSS 儲存與執行證據：待補 |
+| 驗證狀態 | 商品竄改與管理員權限檢查缺失：依研究者實測描述記錄；已補含 XSS payload 的 PUT 請求；XSS 儲存與執行證據：待補 |
 | 風險評估 | 待評估，需補充影響範圍與利用條件 |
 | Juice Shop 版本／部署方式 | 待補 |
 
@@ -19,14 +19,14 @@
 
 進一步測試發現，商品更新 API 未有效檢查 Bearer Token 所代表的使用者是否具有管理員權限，使非管理員使用者也能竄改商品資訊。此問題涉及伺服器端授權檢查缺失。
 
-本報告以三星「API-Only XSS」挑戰為主題。官方將此挑戰定義為透過 API 植入儲存型 XSS；目前提供的實測紀錄涵蓋 API 發現與未授權商品更新，尚未提供 XSS payload、儲存結果、前端觸發位置與執行證據，因此尚不宣稱已完成 XSS 驗證。[官方挑戰說明](https://pwning.owasp-juice.shop/companion-guide/latest/part2/xss.html)
+本報告以三星「API-Only XSS」挑戰為主題。官方將此挑戰定義為透過 API 植入儲存型 XSS；目前提供的實測紀錄涵蓋 API 發現、商品更新描述與含 XSS payload 的 PUT 請求，尚未提供非管理員對照封包、payload 儲存結果、前端觸發位置與執行證據，因此尚不宣稱已完成 XSS 驗證。[官方挑戰說明](https://pwning.owasp-juice.shop/companion-guide/latest/part2/xss.html)
 
 ## 2. 測試環境與前置條件
 
 - 測試對象：OWASP Juice Shop 實驗環境。
 - 實際版本、部署方式、網址與工具版本：待補，參見 [環境紀錄](../environment/README.md)。
 - 權限測試情境：使用非管理員身分的 Bearer Token 發送商品更新請求。
-- 目標商品 ID、實際修改欄位與原始內容：待補。
+- 已補請求的目標商品 ID 為 `1`，修改欄位為 `description`；修改前內容待補。
 - 觀察結果來源：研究者提供的操作描述；本報告撰寫時未連線至實驗環境重跑測試。
 
 ## 3. 發現過程
@@ -65,30 +65,41 @@
 5. 使用一般使用者的 Bearer Token 發送更新請求。
 6. 重新讀取商品資料，比對修改前後的欄位，確認更新是否已儲存。
 
-### 請求格式示意
+### 實際請求（憑證已遮蔽）
 
-下列為整理報告用的示意請求，並非實際封包。`<product-id>`、Host、Token 與欄位應以實測內容替換；`description` 僅作為商品資訊欄位的例子。
+以下為研究者補充的本機實驗請求，包含寫入商品 `description` 欄位的 XSS payload。Bearer Token 與 Cookie 已遮蔽；標頭與本文保留為原始請求紀錄，重送時應由工具重新計算 Content-Length。
+
+此請求中的 JWT payload 解碼後，`role` 欄位為 `admin`。解碼不代表已驗證簽章；這份請求本身也不能證明非管理員具有商品更新權限，仍需補充一般使用者的對照請求與回應。
 
 ```http
-PUT /api/Products/<product-id> HTTP/1.1
-Host: <lab-host>
-Authorization: Bearer <regular-user-token>
+PUT /api/Products/1 HTTP/1.1
+Host: localhost:3000
+sec-ch-ua-platform: "Windows"
+Authorization: Bearer <REDACTED>
+Accept-Language: zh-TW,zh;q=0.9
+sec-ch-ua: "Not:A-Brand";v="8", "Chromium";v="156"
+Sec-Purpose: prefetch;prerender
+sec-ch-ua-mobile: ?0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36
+Accept: application/json, text/plain, */*
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: http://localhost:3000/
+Accept-Encoding: gzip, deflate, br
+Cookie: <REDACTED>
+Connection: keep-alive
+Content-Length: 303
 Content-Type: application/json
 
-{
-  "description": "API update verification marker"
-}
+{"id":1,"name":"蘋果汁（1000ml）",  "description": "<iframe src=\"javascript:alert(`xss`)\">","price":1.99,"deluxePrice":0.99,"image":"apple_juice.jpg","createdAt":"2026-10-27T05:09:52.224Z","updatedAt":"2026-10-27T05:09:52.224Z","deletedAt":null}
 ```
-
-**預期行為：** 若商品更新僅限管理員，伺服器應拒絕一般使用者的修改請求，商品內容維持原值。
-
-**實際觀察：** 依研究者描述，非管理員使用者仍能透過 `PUT` 修改商品資訊。實際 HTTP 狀態碼、回應內容與修改前後比對資料尚待補充。
 
 ## 5. API-Only XSS 的後續驗證
 
 商品資訊可被修改提供了潛在的 XSS 寫入入口，但純文字修改成功尚不足以證明 XSS。要確認儲存型 XSS，還需要證明輸入被保存，且在其他使用者瀏覽相關內容時，被當作可執行內容處理。
 
-官方挑戰使用以下 payload；此處列為後續實驗參考，並非宣稱研究者已使用或成功觸發：
+研究者補充的 PUT 請求包含以下 payload，與官方挑戰的驗證字串相同；目前尚未取得伺服器回應、持續儲存結果或瀏覽器成功觸發的證據：
 
 ```html
 <iframe src="javascript:alert(`xss`)">
@@ -98,7 +109,7 @@ Content-Type: application/json
 
 後續需補充：
 
-- 實際注入的商品欄位與完整 `PUT` 請求。
+- 已補的 `description` 注入請求所對應的伺服器回應。
 - 更新後重新讀取商品的結果，確認 payload 是否持續存在。
 - 實際呈現該欄位的頁面、觸發操作與瀏覽器執行證據。
 - 是否影響其他使用者，以及挑戰完成畫面（如有）。
@@ -116,10 +127,10 @@ XSS 部分仍需確認資料儲存與呈現流程。若商品欄位被當作 HTM
 | 發現 | 目前證據與限制 |
 | --- | --- |
 | 商品內容可遭非管理員修改 | 依研究者實測描述記錄，原始封包與前後比對待補 |
-| Token 缺少管理員權限檢查 | 一般使用者情境可更新商品；需補充角色與權限佐證 |
+| Token 缺少管理員權限檢查 | 研究者描述一般使用者可更新；已補封包的 Token 載荷標示為 admin，仍需非管理員對照封包 |
 | 未登入或無效 Token 也可更新商品 | 尚未提供測試結果 |
 | 可修改其他商品或其他欄位 | 尚未提供測試結果 |
-| 儲存型 XSS | 尚未提供 payload 儲存與瀏覽器執行證據 |
+| 儲存型 XSS | 已提供含 payload 的 PUT 請求，尚未提供 payload 儲存與瀏覽器執行證據 |
 
 商品竄改可能破壞商品資料的完整性。若後續確認可植入並觸發儲存型 XSS，則還可能影響瀏覽該內容的使用者，實際影響需依執行環境、可接觸的資料與權限評估。
 
