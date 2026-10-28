@@ -1,0 +1,13 @@
+# 本機環境設定與憑證
+.env
+.env.*
+!.env.example
+
+# 套件與本機執行紀錄
+node_modules/
+*.log
+
+# 系統暫存
+.DS_Store
+Thumbs.db
+Desktop.ini

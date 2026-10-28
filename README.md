@@ -1,0 +1,56 @@
+# Juice Shop Security Research
+
+以 OWASP Juice Shop 為練習平台，記錄漏洞重現、成因分析、影響評估與修補方法。
+
+本專案為個人資安學習與研究紀錄。Juice Shop 是刻意包含漏洞的訓練應用程式；重現其既有挑戰不代表發現新的漏洞。
+
+## 研究範圍
+
+- 測試對象：自行部署或明確獲得授權的 OWASP Juice Shop 實驗環境。
+- 研究內容：漏洞發現過程、可重現步驟、驗證證據、程式碼成因與修補建議。
+- 每篇報告記錄實際測試的版本、前置條件與驗證限制。
+
+## 報告索引
+
+目前尚未完成漏洞研究報告。完成後，在下表加入報告連結。
+
+| 編號 | 挑戰／漏洞名稱 | 挑戰難度 | 漏洞類型 | 風險評估 | 報告 |
+| --- | --- | --- | --- | --- | --- |
+
+挑戰難度依測試版本中 Juice Shop 的星級填寫，保留原始星數，不限定為一至四星。星級代表挑戰難度；風險評估需另外依據實際影響與利用條件說明。
+
+## 目錄結構
+
+```text
+Juice-Shop-Security-Research/
+├── README.md
+├── environment/
+│   └── README.md
+├── reports/
+│   ├── TEMPLATE.md
+│   ├── sql-injection/
+│   ├── xss/
+│   └── access-control/
+└── assets/
+    └── README.md
+```
+
+報告依漏洞類型分類，不依星級建立資料夾。遇到其他漏洞類型時，再新增對應目錄。
+
+## 新增研究報告
+
+1. 依照 [環境紀錄](environment/README.md) 填寫部署方式與版本。
+2. 複製 [漏洞報告範本](reports/TEMPLATE.md) 至對應漏洞類型目錄。
+3. 以 `001-short-description.md` 格式命名，編號在整個專案中保持唯一。
+4. 將證據放入 `assets/001-short-description/`，並在報告中使用相對路徑引用。
+5. 完成後更新上方報告索引。
+
+未完成的測試或未驗證的修補，請明確標註狀態。風險評估如使用 CVSS，需附上版本、向量與評分理由。
+
+## 參考資料
+
+- [OWASP Juice Shop 官方專案](https://owasp.org/projects/juice-shop)
+- [OWASP Juice Shop 原始碼](https://github.com/juice-shop/juice-shop)
+- [官方學習指南](https://help.owasp-juice.shop/)
+
+參考官方解答或其他研究時，請在各篇報告註明來源，並說明自己的驗證與分析。
