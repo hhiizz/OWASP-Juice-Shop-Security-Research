@@ -17,6 +17,9 @@
 | 編號 | 挑戰／漏洞名稱 | 挑戰難度 | 漏洞類型 | 風險評估 | 報告 |
 | --- | --- | --- | --- | --- | --- |
 | JS-001 | API-Only XSS | ★ ★ ★ | XSS／存取控制 | 待評估 | [報告：商品竄改已依實測描述記錄，XSS 證據待補](reports/001-api-only-xss.md) |
+| JS-002 | Login Amy | ★ ★ ★ | Sensitive Data Exposure／規律密碼與字典攻擊 | 待評估 | [研究報告](reports/002-login-amy.md) |
+| JS-003 | Login Bender | ★ ★ ★ | Injection／SQL Injection | 待評估 | [研究報告](reports/003-login-bender.md) |
+| JS-004 | Login Jim | ★ ★ ★ | Injection／SQL Injection 與密碼雜湊破解 | 待評估 | [研究報告](reports/004-login-jim.md) |
 
 挑戰難度依測試版本中 Juice Shop 的星級填寫，保留原始星數，不限定為一至四星。星級代表挑戰難度；風險評估需另外依據實際影響與利用條件說明。
 
@@ -29,7 +32,10 @@ Juice-Shop-Security-Research/
 │   └── README.md
 ├── reports/
 │   ├── TEMPLATE.md
-│   └── 001-api-only-xss.md
+│   ├── 001-api-only-xss.md
+│   ├── 002-login-amy.md
+│   ├── 003-login-bender.md
+│   └── 004-login-jim.md
 └── assets/
     └── README.md
 ```
