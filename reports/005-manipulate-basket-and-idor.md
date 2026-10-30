@@ -39,13 +39,30 @@
 
 未經授權，將一項新商品加入其他使用者的購物車。官方說明指出，僅增加既有商品數量並不符合此挑戰要求。[官方 Broken Access Control 章節](https://pwning.owasp-juice.shop/companion-guide/latest/part2/broken-access-control.html)
 
-### 3.2 直接修改 BasketId 遭到阻擋
+### 3.2 Discovery Method — Black-box HPP Testing
+
+本次以黑箱方式進行對照測試，參考 OWASP WSTG-INPV-04（Testing for HTTP Parameter Pollution），將同名參數的測試思路應用於 JSON Body 的重複欄位。
+
+首先，使用 Burp Suite 擷取 `POST /api/BasketItems/`，送至 Repeater，確認請求中包含可由使用者控制的 `BasketId`。
+
+接著進行對照測試：
+
+1. **正常參數：** 使用自己的 `BasketId`，確認 API 可以正常新增商品。
+2. **修改參數：** 將 `BasketId` 改成其他使用者的購物車，收到 `401 Invalid BasketId`。
+3. **重複參數：** 在 JSON Body 中放入兩個不同的 `BasketId`，測試後端是否會產生權限驗證與實際寫入不一致的情況。
+4. **結果驗證：** 確認成功將商品新增到另一個使用者的購物車，完成 Manipulate Basket 挑戰。
+
+此漏洞說明：當後端對同一參數的權限驗證與實際資料操作採用不同值時，可能導致 Broken Access Control。
+
+**Reference:** [OWASP WSTG-INPV-04 — Testing for HTTP Parameter Pollution](https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/07-Input_Validation_Testing/04-Testing_for_HTTP_Parameter_Pollution/)
+
+### 3.3 直接修改 BasketId 遭到阻擋
 
 使用 Burp Suite 擷取新增商品的 `POST /api/BasketItems/` 請求，並從登入取得的 JWT 了解目前帳號的 `bid`。本次 Admin 帳號的 `bid` 為 `1`。
 
 當請求僅包含一個 `BasketId`，且直接改為其他使用者的購物車 ID 時，伺服器回傳 `401` 與 `Invalid BasketId`。這表示新增流程存在購物車檢查，單純替換 ID 並未成功。
 
-### 3.3 使用重複 JSON 欄位繞過檢查
+### 3.4 使用重複 JSON 欄位繞過檢查
 
 在 Burp Suite Repeater 中保留第一個 `BasketId` 為自己的購物車 `1`，另外加入第二個同名欄位，值設為目標購物車 `3`：
 
@@ -60,13 +77,13 @@ Content-Type: application/json
 
 這裡的兩個 `BasketId` 必須以原始請求文字保留。若先轉為一般程式物件再序列化，重複欄位可能被合併，使測試內容改變。
 
-### 3.4 測試結果
+### 3.5 測試結果
 
 依研究者實測，該請求成功將商品加入其他使用者的購物車，並完成官方 Manipulate Basket 挑戰。
 
 本次 POST PoC 使用 Admin 帳號；一般帳號在相同重複欄位路徑下的結果未另行提供。下節 PUT IDOR 則是使用 Bender 帳號測試。
 
-### 3.5 成因分析：檢查與寫入使用不同值
+### 3.6 成因分析：檢查與寫入使用不同值
 
 本次行為符合 JSON 同名欄位處理不一致所造成的參數污染問題：
 
@@ -166,9 +183,9 @@ Content-Type: application/json
 
 ## 9. 參考資料
 
-- [使用者提供的 Manipulate Basket 影片](https://youtu.be/pdtDtmIiSOQ)
+- [OWASP WSTG-INPV-04 — Testing for HTTP Parameter Pollution](https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/07-Input_Validation_Testing/04-Testing_for_HTTP_Parameter_Pollution/)
 - [官方 Broken Access Control 挑戰說明](https://pwning.owasp-juice.shop/companion-guide/latest/part2/broken-access-control.html)
 - [Juice Shop v20.3.0：basketItems.ts](https://github.com/juice-shop/juice-shop/blob/v20.3.0/routes/basketItems.ts)
 - [OWASP API1:2023 Broken Object Level Authorization](https://api-security.owasp.org/editions/2023/en/0xa1-broken-object-level-authorization/)
 
-影片列為參考連結，未取得完整逐字稿核對。實測結果來自研究者提供的紀錄；原始碼引用用於成因說明，尚未與本機測試版本對齊。
+實測結果來自研究者提供的紀錄；原始碼引用用於成因說明，尚未與本機測試版本對齊。
