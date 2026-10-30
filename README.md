@@ -20,6 +20,7 @@
 | JS-002 | Login Amy | ★ ★ ★ | Sensitive Data Exposure／規律密碼與字典攻擊 | 待評估 | [研究報告](reports/002-login-amy.md) |
 | JS-003 | Login Bender | ★ ★ ★ | Injection／SQL Injection | 待評估 | [研究報告](reports/003-login-bender.md) |
 | JS-004 | Login Jim | ★ ★ ★ | Injection／SQL Injection 與密碼雜湊破解 | 待評估 | [研究報告](reports/004-login-jim.md) |
+| JS-005 | Manipulate Basket 與額外 IDOR | ★ ★ ★ | Broken Access Control／JSON 參數污染／IDOR | 待評估 | [研究報告：挑戰完成與跨購物車修改](reports/005-manipulate-basket-and-idor.md) |
 
 挑戰難度依測試版本中 Juice Shop 的星級填寫，保留原始星數，不限定為一至四星。星級代表挑戰難度；風險評估需另外依據實際影響與利用條件說明。
 
@@ -35,7 +36,8 @@ Juice-Shop-Security-Research/
 │   ├── 001-api-only-xss.md
 │   ├── 002-login-amy.md
 │   ├── 003-login-bender.md
-│   └── 004-login-jim.md
+│   ├── 004-login-jim.md
+│   └── 005-manipulate-basket-and-idor.md
 └── assets/
     └── README.md
 ```
